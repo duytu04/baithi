@@ -1,0 +1,132 @@
+<div class="dashboard-container">
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <section class="hero-section">
+        <h2>📚 Quản lý Sách</h2>
+        <p class="subtitle">Thêm, sửa, xóa thông tin sách</p>
+    </section>
+
+    <div *ngIf="successMessage" class="alert alert-success">✅ {{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-error">⚠️ {{ errorMessage }}</div>
+
+    <section class="glass-card form-section">
+        <h3>➕ Thêm Sách Mới</h3>
+        <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tên sách *</label>
+                    <input formControlName="title" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>ISBN *</label>
+                    <input formControlName="isbn" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Năm xuất bản *</label>
+                    <input type="number" formControlName="publishedYear" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Số trang *</label>
+                    <input type="number" formControlName="pages" class="form-control" />
+                </div>
+                <div class="form-group span-2">
+                    <label>Nhà xuất bản *</label>
+                    <div class="author-dropdown">
+                        <div class="dropdown-header" (click)="togglePublisherDropdown()">
+                            <span *ngIf="!getSelectedPublisher()">-- Chọn NXB --</span>
+                            <span *ngIf="getSelectedPublisher()">
+                                {{ getSelectedPublisher() }}
+                            </span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-list" *ngIf="showPublisherDropdown">
+                            <div class="dropdown-item" *ngFor="let pub of publishers" (click)="selectPublisher(pub.id)">
+                                <label>
+                                    <input type="radio" name="publisher" [checked]="isPublisherSelected(pub.id)"
+                                        (click)="$event.stopPropagation()" />
+                                    <span>{{ pub.name }}</span>
+                                </label>
+                            </div>
+                            <div class="dropdown-item empty" *ngIf="publishers.length === 0">
+                                Chưa có nhà xuất bản
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group span-2">
+                    <label>Tác giả</label>
+                    <div class="author-dropdown">
+                        <div class="dropdown-header" (click)="toggleAuthorDropdown()">
+                            <span *ngIf="getSelectedAuthors().length === 0">-- Chọn tác giả --</span>
+                            <span *ngIf="getSelectedAuthors().length > 0">
+                                {{ getSelectedAuthors().join(', ') }}
+                            </span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-list" *ngIf="showAuthorDropdown">
+                            <div class="dropdown-item" *ngFor="let author of authors">
+                                <label>
+                                    <input type="checkbox" [checked]="isAuthorSelected(author.id)"
+                                        (change)="toggleAuthor(author.id)" />
+                                    <span>{{ author.fullName }}</span>
+                                </label>
+                            </div>
+                            <div class="dropdown-item empty" *ngIf="authors.length === 0">
+                                Chưa có tác giả
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="loading">
+                    <span *ngIf="!editingBookId">✨ Thêm sách</span>
+                    <span *ngIf="editingBookId">💾 Cập nhật sách</span>
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="loading">
+                    🔄 Làm mới
+                </button>
+                <button *ngIf="editingBookId" type="button" class="btn btn-secondary" (click)="cancelEdit()"
+                    [disabled]="loading">
+                    ❌ Hủy chỉnh sửa
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="glass-card table-section">
+        <h3>📖 Danh sách ({{ books.length }})</h3>
+        <table *ngIf="books.length > 0">
+            <thead>
+                <tr>
+                    <th>Tên sách</th>
+                    <th>ISBN</th>
+                    <th>Năm</th>
+                    <th>Trang</th>
+                    <th>NXB</th>
+                    <th>Tác giả</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let book of books">
+                    <td><strong>{{ book.title }}</strong></td>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.publishedYear }}</td>
+                    <td>{{ book.pages }}</td>
+                    <td>{{ book.publisherName }}</td>
+                    <td>{{ (book.authorNames || []).join(', ') || '-' }}</td>
+                    <td>
+                        <button class="btn-icon btn-edit" (click)="startEdit(book)">✏️</button>
+                        <button class="btn-icon btn-delete" (click)="deleteBook(book.id)">🗑️</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="books.length === 0" class="empty-state">
+            <p>Chưa có sách</p>
+        </div>
+    </section>
+</div>

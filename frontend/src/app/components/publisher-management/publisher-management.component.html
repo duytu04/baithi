@@ -1,0 +1,91 @@
+<div class="dashboard-container">
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <section class="hero-section">
+        <h2>🏢 Quản lý Nhà Xuất Bản</h2>
+        <p class="subtitle">Thêm, sửa, xóa thông tin nhà xuất bản</p>
+    </section>
+
+    <div *ngIf="successMessage" class="alert alert-success">✅ {{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-error">⚠️ {{ errorMessage }}</div>
+
+    <!-- Add Form -->
+    <section class="glass-card form-section">
+        <h3>➕ Thêm Nhà Xuất Bản Mới</h3>
+        <form [formGroup]="publisherForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tên NXB *</label>
+                    <input formControlName="name" class="form-control" [class.error]="isFieldInvalid('name')" />
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ</label>
+                    <input formControlName="address" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Website</label>
+                    <input formControlName="website" class="form-control" [class.error]="isFieldInvalid('website')" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input formControlName="email" class="form-control" [class.error]="isFieldInvalid('email')" />
+                </div>
+                <div class="form-group">
+                    <label>Điện thoại</label>
+                    <input formControlName="phone" class="form-control" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="loading">✨ Thêm</button>
+        </form>
+    </section>
+
+    <!-- List -->
+    <section class="glass-card table-section">
+        <h3>📚 Danh sách ({{ publishers.length }})</h3>
+        <table *ngIf="publishers.length > 0">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Địa chỉ</th>
+                    <th>Website</th>
+                    <th>Email</th>
+                    <th>Điện thoại</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let pub of publishers">
+                    <ng-container *ngIf="editingId !== pub.id; else editMode">
+                        <td><strong>{{ pub.name }}</strong></td>
+                        <td>{{ pub.address || '-' }}</td>
+                        <td>{{ pub.website || '-' }}</td>
+                        <td>{{ pub.email || '-' }}</td>
+                        <td>{{ pub.phone || '-' }}</td>
+                        <td>
+                            <button class="btn-icon btn-edit" (click)="startEdit(pub)">✏️</button>
+                            <button class="btn-icon btn-delete" (click)="deletePublisher(pub.id)">🗑️</button>
+                        </td>
+                    </ng-container>
+                    <ng-template #editMode>
+                        <td colspan="6">
+                            <form [formGroup]="editForm" (ngSubmit)="saveEdit(pub)" class="edit-form">
+                                <input formControlName="name" placeholder="Tên" class="form-control-sm" />
+                                <input formControlName="address" placeholder="Địa chỉ" class="form-control-sm" />
+                                <input formControlName="website" placeholder="Website" class="form-control-sm" />
+                                <input formControlName="email" placeholder="Email" class="form-control-sm" />
+                                <input formControlName="phone" placeholder="ĐT" class="form-control-sm" />
+                                <button type="submit" class="btn-icon">✅</button>
+                                <button type="button" class="btn-icon" (click)="cancelEdit()">❌</button>
+                            </form>
+                        </td>
+                    </ng-template>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="publishers.length === 0" class="empty-state">
+            <p>Chưa có nhà xuất bản</p>
+        </div>
+    </section>
+</div>

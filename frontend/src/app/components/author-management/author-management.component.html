@@ -1,0 +1,80 @@
+<div class="dashboard-container">
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <section class="hero-section">
+        <h2>✍️ Quản lý Tác Giả</h2>
+        <p class="subtitle">Thêm, sửa, xóa thông tin tác giả và tiểu sử</p>
+    </section>
+
+    <div *ngIf="successMessage" class="alert alert-success">✅ {{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-error">⚠️ {{ errorMessage }}</div>
+
+    <section class="glass-card form-section">
+        <h3>➕ Thêm Tác Giả Mới</h3>
+        <form [formGroup]="authorForm" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Họ tên *</label>
+                    <input formControlName="fullName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Quốc tịch *</label>
+                    <input formControlName="nationality" class="form-control" />
+                </div>
+                <div class="form-group span-2">
+                    <label>Tiểu sử</label>
+                    <textarea formControlName="biography" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group span-2">
+                    <label>Website</label>
+                    <input formControlName="website" class="form-control" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="loading">✨ Thêm</button>
+        </form>
+    </section>
+
+    <section class="glass-card table-section">
+        <h3>📝 Danh sách ({{ authors.length }})</h3>
+        <table *ngIf="authors.length > 0">
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Quốc tịch</th>
+                    <th>Tiểu sử</th>
+                    <th>Website</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let author of authors">
+                    <ng-container *ngIf="editingId !== author.id; else editMode">
+                        <td><strong>{{ author.fullName }}</strong></td>
+                        <td>{{ author.nationality }}</td>
+                        <td>{{ (author.biography || '-') | slice:0:50 }}...</td>
+                        <td>{{ author.website || '-' }}</td>
+                        <td>
+                            <button class="btn-icon btn-edit" (click)="startEdit(author)">✏️</button>
+                            <button class="btn-icon btn-delete" (click)="deleteAuthor(author.id)">🗑️</button>
+                        </td>
+                    </ng-container>
+                    <ng-template #editMode>
+                        <td colspan="5">
+                            <form [formGroup]="editForm" (ngSubmit)="saveEdit(author)" class="edit-form">
+                                <input formControlName="fullName" placeholder="Tên" class="form-control-sm" />
+                                <input formControlName="nationality" placeholder="Quốc tịch" class="form-control-sm" />
+                                <button type="submit" class="btn-icon">✅</button>
+                                <button type="button" class="btn-icon" (click)="cancelEdit()">❌</button>
+                            </form>
+                        </td>
+                    </ng-template>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="authors.length === 0" class="empty-state">
+            <p>Chưa có tác giả</p>
+        </div>
+    </section>
+</div>
